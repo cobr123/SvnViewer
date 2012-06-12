@@ -19,6 +19,7 @@ public class MainWindow {
 	private JTextField fldSvnUrl;
 	final JButton btnRefresh;
 	final JButton btnInsert;
+	final JButton btnSave;
 	private JPanel p1, p3;
 	JTable tblFiles;
 	JTable tblSaveFiles;
@@ -85,11 +86,15 @@ public class MainWindow {
 		tblSaveFiles.setAutoCreateRowSorter(true);
 		JScrollPane scrollPane2 = new JScrollPane(tblSaveFiles);
 		pnlSaveFiles.add(scrollPane2);
+
+		btnSave = new JButton("Сохранить файлы");
+		btnSave.addActionListener(engine);
+		pnlSaveFiles.add(btnSave);
 		
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Tab 1", pnlChooseSvnFiles);
+        tabbedPane.addTab("Выбор файлов", pnlChooseSvnFiles);
         tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
-        tabbedPane.addTab("Tab 2", pnlSaveFiles);
+        tabbedPane.addTab("Сохранение", pnlSaveFiles);
         tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
         tabbedPane.setTabPlacement(JTabbedPane.BOTTOM);
         

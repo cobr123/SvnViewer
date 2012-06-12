@@ -3,8 +3,10 @@ import java.awt.event.ActionListener;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
@@ -20,7 +22,18 @@ public class Engine implements ActionListener {
 	public Engine(final MainWindow window) {
 		this.parent = window;
 	}
-
+	private HashSet<String> getFileNames(){
+		DefaultTableModel modelForSave = (DefaultTableModel) parent.tblSaveFiles
+				.getModel();
+		int cnt = modelForSave.getRowCount();
+		HashSet<String> set = new HashSet<String>();
+		for (int i = 0; i < cnt; ++i) {
+			if (!set.contains((String) modelForSave.getValueAt(i, 0))) {
+				set.add((String) modelForSave.getValueAt(i, 0));
+			}
+		}
+		return set;
+	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// Get the source of this action
@@ -29,6 +42,16 @@ public class Engine implements ActionListener {
 			if (clickedButton == parent.btnRefresh) {
 				parent.btnRefresh.setEnabled(false);
 				(new FileListRefresher()).execute();
+			} else if (clickedButton == parent.btnSave) {
+				int cnt = parent.tblSaveFiles.getModel().getRowCount();
+				if (cnt > 0) {
+					String dir = chooseDir();
+					//System.out.println(dir);
+					HashSet<String> set = getFileNames();
+					if(dir != null){
+						svnRep.SaveFilesTo(dir, set);
+					}
+				}
 			} else if (clickedButton == parent.btnInsert) {
 				int rows[] = parent.tblFiles.getSelectedRows();
 				for (int i = rows.length - 1; i >= 0; --i) {
@@ -47,12 +70,31 @@ public class Engine implements ActionListener {
 		}
 	}
 
+	private String chooseDir() {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setCurrentDirectory(new java.io.File("."));
+		chooser.setDialogTitle("choosertitle");
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		chooser.setAcceptAllFileFilterUsed(false);
+
+		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			// System.out.println("getCurrentDirectory(): " +
+			// chooser.getCurrentDirectory());
+			// System.out.println("getSelectedFile() : " +
+			// chooser.getSelectedFile());
+			return chooser.getSelectedFile().getAbsolutePath();
+		} else {
+			return null;
+			// System.out.println("No Selection ");
+		}
+	}
+
 	class FileListRefresher extends SwingWorker<Object, Object> {
 		private Collection entries;
 
 		@Override
 		public String doInBackground() {
-			System.out.println("doInBackground");
+			// System.out.println("doInBackground");
 			try {
 				entries = svnRep.GetEntries();
 			} catch (SVNException e) {
@@ -91,7 +133,7 @@ public class Engine implements ActionListener {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			System.out.println("done");
+			// System.out.println("done");
 		}
 	}
 }
